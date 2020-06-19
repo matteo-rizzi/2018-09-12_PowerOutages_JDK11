@@ -18,6 +18,7 @@ public class Model {
 	private PowerOutagesDAO dao;
 	private Graph<Nerc, DefaultWeightedEdge> grafo;
 	private Map<Integer, Nerc> idMap;
+	private Simulator sim;
 	
 	public Model() {
 		this.dao = new PowerOutagesDAO();
@@ -58,5 +59,33 @@ public class Model {
 		}
 		Collections.sort(vicini);
 		return vicini;
+	}
+	
+	public List<PowerOutage> loadAllPowerOutages() {
+		return this.dao.loadAllPowerOutages(idMap);
+	}
+	
+	public List<Nerc> getNercs() {
+		List<Nerc> nercs = new ArrayList<>(this.idMap.values());
+		return nercs;
+	}
+	
+	public void simula(int numeroDiMesi) {
+		this.sim = new Simulator(this);
+		this.sim.setNumeroDiMesi(numeroDiMesi);
+		this.sim.init();
+		this.sim.run();
+	}
+	
+	public int getCatastrofi() {
+		return this.sim.getCatastrofi();
+	}
+	
+	public String getBonus() {
+		String bonus = "";
+		for(Nerc nerc : this.sim.getNercs()) {
+			bonus += "Nerc: " + nerc.getValue() + ", bonus: " + nerc.getNumeroGiorni() + " giorni\n";
+		}
+		return bonus;
 	}
 }

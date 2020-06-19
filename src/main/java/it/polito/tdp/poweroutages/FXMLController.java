@@ -55,6 +55,23 @@ public class FXMLController {
 
 	@FXML
 	void doSimula(ActionEvent event) {
+		this.txtResult.clear();
+		try {
+			Integer K;
+			try {
+				K = Integer.parseInt(this.txtK.getText());
+			} catch (NumberFormatException e) {
+				this.txtResult.appendText("Errore! Devi inserire un valore numerico per K!");
+				return;
+			}
+			
+			this.model.simula(K);
+			this.txtResult.appendText(this.model.getBonus() + "\n");
+			this.txtResult.appendText("Numero di catastrofi: " + this.model.getCatastrofi());
+		} catch (RuntimeException e) {
+			this.txtResult.appendText("Errore! Per poter iniziare la simulazione devi prima creare il grafo!");
+			return;
+		}
 
 	}
 
@@ -77,7 +94,8 @@ public class FXMLController {
 				this.txtResult.appendText(vicino + "\n");
 			}
 		} catch (RuntimeException e) {
-			this.txtResult.appendText("Errore! Per poter visualizzare i vicini del nerc selezionato devi prima creare il grafo!");
+			this.txtResult.appendText(
+					"Errore! Per poter visualizzare i vicini del nerc selezionato devi prima creare il grafo!");
 			return;
 		}
 	}

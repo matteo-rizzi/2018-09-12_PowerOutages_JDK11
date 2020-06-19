@@ -10,6 +10,32 @@ public class Vicino implements Comparable<Vicino>{
 		this.vicino = vicino;
 		this.peso = peso;
 	}
+	
+	
+
+	public Nerc getVicino() {
+		return vicino;
+	}
+
+
+
+	public void setVicino(Nerc vicino) {
+		this.vicino = vicino;
+	}
+
+
+
+	public Integer getPeso() {
+		return peso;
+	}
+
+
+
+	public void setPeso(Integer peso) {
+		this.peso = peso;
+	}
+
+
 
 	@Override
 	public String toString() {

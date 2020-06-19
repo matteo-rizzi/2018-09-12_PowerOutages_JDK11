@@ -10,9 +10,10 @@ import java.sql.SQLException;
 
 import it.polito.tdp.poweroutages.model.Adiacenza;
 import it.polito.tdp.poweroutages.model.Nerc;
+import it.polito.tdp.poweroutages.model.PowerOutage;
 
 public class PowerOutagesDAO {
-	
+
 	public void loadAllNercs(Map<Integer, Nerc> idMap) {
 
 		String sql = "SELECT id, value FROM nerc";
@@ -23,7 +24,7 @@ public class PowerOutagesDAO {
 			ResultSet res = st.executeQuery();
 
 			while (res.next()) {
-				if(!idMap.containsKey(res.getInt("id"))) {
+				if (!idMap.containsKey(res.getInt("id"))) {
 					Nerc n = new Nerc(res.getInt("id"), res.getString("value"));
 					idMap.put(res.getInt("id"), n);
 				}
@@ -36,10 +37,10 @@ public class PowerOutagesDAO {
 		}
 
 	}
-	
+
 	public List<Adiacenza> getAdiacenze(Map<Integer, Nerc> idMap) {
 		String sql = "SELECT nerc_one AS primo, nerc_two AS secondo, COUNT(DISTINCT MONTH(po1.date_event_began), YEAR(po1.date_event_began)) AS peso FROM nercrelations AS nr , poweroutages AS po1, poweroutages AS po2 WHERE nr.nerc_one=po1.nerc_id AND nr.nerc_two = po2.nerc_id AND MONTH(po1.date_event_began) = MONTH(po2.date_event_began) AND YEAR(po1.date_event_began) = YEAR(po2.date_event_began) GROUP BY nerc_one, nerc_two";
-	
+
 		List<Adiacenza> list = new ArrayList<>();
 
 		try {
@@ -48,7 +49,8 @@ public class PowerOutagesDAO {
 			ResultSet res = st.executeQuery();
 
 			while (res.next()) {
-				Adiacenza a = new Adiacenza(idMap.get(res.getInt("primo")), idMap.get(res.getInt("secondo")), res.getInt("peso"));
+				Adiacenza a = new Adiacenza(idMap.get(res.getInt("primo")), idMap.get(res.getInt("secondo")),
+						res.getInt("peso"));
 				list.add(a);
 			}
 
@@ -59,5 +61,31 @@ public class PowerOutagesDAO {
 		}
 
 		return list;
+	}
+
+	public List<PowerOutage> loadAllPowerOutages(Map<Integer,Nerc> idMap) {
+		String sql = "SELECT id, nerc_id, date_event_began, date_event_finished FROM poweroutages ORDER BY date_event_began";
+
+		List<PowerOutage> list = new ArrayList<>();
+
+		try {
+			Connection conn = DBConnect.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			ResultSet res = st.executeQuery();
+
+			while (res.next()) {
+
+				PowerOutage po = new PowerOutage(res.getInt("id"), idMap.get(res.getInt("nerc_id")), res.getTimestamp("date_event_began").toLocalDateTime(), res.getTimestamp("date_event_finished").toLocalDateTime());
+				list.add(po);
+
+			}
+
+			conn.close();
+			
+			return list;
+
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }
